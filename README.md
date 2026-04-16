@@ -15,6 +15,7 @@ It also includes an **independent invoice backend**, a **Next.js merchant UI** w
 | Merchant UI | `merchant-pos/` | Next.js PoS-style UI, invoice proxies, Mesh wallet connect, “Pay with wallet” |
 | Invoicing API | `invoice-backend/` | Standalone REST: CRUD + PDF + Excel |
 | Feature & dev doc | [`FEATURES_AND_DEVELOPMENT.md`](./FEATURES_AND_DEVELOPMENT.md) | Wallet/payment wiring, env vars, `curl` examples |
+| Milestone demo videos | [`docs/demo-videos/`](./docs/demo-videos/) | MP4 PoA + [`docs/demo-videos/README.md`](./docs/demo-videos/README.md) |
 
 ### Wallet connect + in-browser payment (evidence pointers)
 

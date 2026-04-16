@@ -8,6 +8,18 @@ This repository contains two reference PDFs plus working code components that im
 - **Architecture**: `Hydra_Point-of-Sale_(PoS)__Invoicing_Technical_architecture_and_design.pdf`
 - **Frontend (baseline + integration)**: `merchant-pos/` (Next.js)
 - **Backend (invoicing)**: `invoice-backend/` (Node/Express)
+- **Milestone demo videos (versioned PoA)**: `docs/demo-videos/` — see [`docs/demo-videos/README.md`](./docs/demo-videos/README.md)
+
+---
+
+## Demo videos (milestone evidence)
+
+Curated **MP4** exports for reviewers live under **`docs/demo-videos/`** (tracked in git). Local scratch exports may still live under `/demo videos/` at repo root; that folder remains gitignored.
+
+- **`01-merchant-full-checkout.mp4`** — merchant-side PoS + invoicing demo.
+- **`02-customer.mp4`** — customer wallet pay flow.
+
+Index and link patterns: [`docs/demo-videos/README.md`](./docs/demo-videos/README.md).
 
 ---
 
