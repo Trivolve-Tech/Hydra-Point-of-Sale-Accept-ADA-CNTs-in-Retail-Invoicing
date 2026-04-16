@@ -30,8 +30,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       "Content-Type",
       response.headers["content-type"] ?? "application/pdf",
     );
-    if (response.headers["content-disposition"]) {
-      res.setHeader("Content-Disposition", response.headers["content-disposition"]);
+
+    const inline = req.query.inline === "1";
+    const rawCd = response.headers["content-disposition"];
+
+    if (inline && response.status === 200) {
+      const quoted = rawCd?.match(/filename="([^"]+)"/)?.[1];
+      const bare = rawCd?.match(/filename=([^;\s]+)/)?.[1];
+      const filename = (quoted ?? bare ?? `invoice-${id}.pdf`).replace(
+        /^["']|["']$/g,
+        "",
+      );
+      res.setHeader(
+        "Content-Disposition",
+        `inline; filename="${filename.replace(/"/g, '\\"')}"`,
+      );
+    } else if (rawCd) {
+      res.setHeader("Content-Disposition", rawCd);
     }
 
     return res.status(response.status).send(Buffer.from(response.data));

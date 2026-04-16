@@ -2,7 +2,11 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import z from "zod";
 
 import { createNewTx, getTransactionRef } from "~/server";
-import { checkPaymentOnchain } from "~/server/cardano";
+import {
+  cardanoscanTxUrl,
+  checkPaymentOnchain,
+  resolvePrimaryFundingTxHash,
+} from "~/server/cardano";
 
 const BodySchema = z.object({ amount: z.number() });
 
@@ -38,7 +42,23 @@ export default async function handler(
       transactionData.amount,
     );
 
-    res.status(200).json({ status, ...transactionData });
+    let onchain_tx_hash: string | null = null;
+    let cardanoscan_tx_url: string | null = null;
+    if (status === 1) {
+      onchain_tx_hash = await resolvePrimaryFundingTxHash(
+        transactionData.payment_address,
+      );
+      if (onchain_tx_hash) {
+        cardanoscan_tx_url = cardanoscanTxUrl(onchain_tx_hash);
+      }
+    }
+
+    res.status(200).json({
+      ...transactionData,
+      status,
+      onchain_tx_hash,
+      cardanoscan_tx_url,
+    });
   } else {
     res.status(405).json({ error: "Method Not Allowed" });
   }

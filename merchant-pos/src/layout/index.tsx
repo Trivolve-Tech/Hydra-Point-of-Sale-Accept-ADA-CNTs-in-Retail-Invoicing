@@ -4,6 +4,8 @@ import { useRouter } from "next/router";
 import { Toaster } from "react-hot-toast";
 import { useAppStore } from "~/store";
 
+import { MeshWalletConnectLazy } from "~/components/mesh/dynamic-mesh";
+
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
 
@@ -33,6 +35,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             },
           }}
         />
+        <div className="mb-3 flex w-[90vw] max-w-[650px] justify-end">
+          <MeshWalletConnectLazy />
+        </div>
         <div className="flex h-auto w-[90vw] max-w-[650px] items-center justify-center">
           {children}
         </div>

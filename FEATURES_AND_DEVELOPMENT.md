@@ -40,6 +40,24 @@ Implemented in `merchant-pos/src/pages/api/**`:
 - `GET /api/invoices/:id/pdf` → proxies to `invoice-backend /invoices/:id/pdf`
 - `GET /api/exports/invoices.xlsx` → proxies to `invoice-backend /exports/invoices.xlsx`
 
+### CIP-30 wallet connect + in-browser payment (Mesh)
+
+The merchant UI uses [**Mesh**](https://meshjs.dev/) (`@meshsdk/core`, `@meshsdk/react`) for **CIP-30** browser wallets (Nami, Eternl, Lace, Flint, etc.):
+
+- **`MeshProvider`** wraps the app in `merchant-pos/src/pages/_app.tsx`, with `@meshsdk/react/styles.css` for the wallet control styling.
+- **`CardanoWallet`** (connect / disconnect / extension picker) is exposed through `merchant-pos/src/components/mesh/MeshWalletConnect.tsx`. It is loaded **client-only** via `next/dynamic` in `dynamic-mesh.tsx` so SSR does not touch `window.cardano`.
+- **Where the connect control appears**: main shell **layout** (`layout/index.tsx`) for the payment gateway (`/`); **inline** again on the **payment** modal (`payment-modal.tsx`) next to “Pay with wallet” so checkout stays self-contained.
+- **Payment initiation from the wallet**: `PayWithWalletButton` (`mesh/PayWithWalletButton.tsx`) builds a Mesh **`Transaction`** with a **`BlockfrostProvider`** (same network as the app), sends **lovelace** to the receive address for the active payment intent, then **signs** and **submits** through the connected wallet (shown on the payment modal while the deposit is still pending).
+
+Browser env (optional for connect-only; **required for “Pay with wallet”**):
+
+| Variable | Purpose |
+|----------|---------|
+| `NEXT_PUBLIC_BLOCKFROST_PROJECT_ID` | Blockfrost project id for UTxO fetch + tx submit in the browser (use a dedicated key; rate-limit appropriately). |
+| `NEXT_PUBLIC_CARDANO_NETWORK` | `preprod` (default if unset), `preview`, or `mainnet` — must match the wallet’s network and the Blockfrost project. |
+
+Server-side chain checks (e.g. `invoice-backend`, `CARDANO_NETWORK`, `BLOCKFROST_KEY`) stay separate; only the **public** Blockfrost id is exposed to the client for Mesh.
+
 ---
 
 ## Data model (invoice)
@@ -96,10 +114,25 @@ Defaults:
 
 `merchant-pos` is a separate Next.js app. It can call invoice APIs through its own proxy routes.
 
-Set:
+Set in `merchant-pos/.env` (see `.env.example`):
 - `INVOICE_BACKEND_URL=http://localhost:7071`
+- `WALLET_SEED_PHRASE`, `BLOCKFROST_KEY`, `BLOCKFROST_URL`, `CARDANO_NETWORK` (server-side payment addresses + on-chain checks)
+- Optional (Mesh in-browser pay): `NEXT_PUBLIC_BLOCKFROST_PROJECT_ID`, `NEXT_PUBLIC_CARDANO_NETWORK` (`preprod` | `preview` | `mainnet`)
 
-Then run it using your preferred package manager for `merchant-pos` (its lockfile is `pnpm-lock.yaml`).
+**One command — UI + invoice backend** (from `merchant-pos/` after `pnpm install` and `npm install` in `invoice-backend/`):
+
+```bash
+cd merchant-pos
+pnpm dev:stack
+```
+
+This runs **invoice-backend** on `http://localhost:7071` and **Next** on `http://localhost:3000` in one terminal (`Ctrl+C` stops both). Equivalent: `./scripts/dev-stack.sh` from the repo root.
+
+Use `pnpm dev` only if you already have the invoice API running elsewhere.
+
+### E2E / Playwright (not in git)
+
+The repo **does not track** the Playwright package (`/e2e-testing/`), root test reports, or optional Preprod desk sources under `merchant-pos` (see root **`.gitignore`**). Keep any local copies for your own runs; they will not be committed.
 
 ---
 

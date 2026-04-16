@@ -7,17 +7,26 @@ import "./src/env.js";
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
+  transpilePackages: [
+    "geist",
+    "@meshsdk/core",
+    "@meshsdk/react",
+    "@meshsdk/transaction",
+    "@meshsdk/wallet",
+    "@meshsdk/common",
+    "@meshsdk/provider",
+    "@meshsdk/core-csl",
+    "@meshsdk/core-cst",
+  ],
 
-  /**
-   * If you are using `appDir` then you must comment the below `i18n` config out.
-   *
-   * @see https://github.com/vercel/next.js/issues/41980
-   */
-  i18n: {
-    locales: ["en"],
-    defaultLocale: "en",
+  /** Mesh / @meshsdk/core-csl ship `.wasm` for the browser bundle. */
+  webpack: (config) => {
+    config.experiments = {
+      ...config.experiments,
+      asyncWebAssembly: true,
+    };
+    return config;
   },
-  transpilePackages: ["geist"],
 };
 
 export default config;

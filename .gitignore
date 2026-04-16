@@ -1,0 +1,31 @@
+# Playwright package + recordings (untracked)
+/e2e-testing/
+
+# Repo-root helper scripts (untracked)
+/scripts/
+
+# Playwright / test output (repo root or elsewhere)
+/test-results/
+/playwright-report/
+/blob-report/
+**/.playwright/
+
+# Curated demo exports from local E2E runs (untracked)
+/demo videos/
+
+# merchant-pos: Preprod desk / Playwright-targeted UI (keep local only; not versioned)
+/merchant-pos/src/pages/e2e-demo.tsx
+/merchant-pos/src/pages/e2e-demo/
+/merchant-pos/src/components/e2e/
+/merchant-pos/src/pages/api/e2e/
+/merchant-pos/src/server/wallet-demo.ts
+
+# Local runtime data (PoS / payment store)
+merchant-pos/data/
+invoice-backend/data/
+
+# OS / editor
+.DS_Store
+
+# Dependencies (install locally)
+node_modules/

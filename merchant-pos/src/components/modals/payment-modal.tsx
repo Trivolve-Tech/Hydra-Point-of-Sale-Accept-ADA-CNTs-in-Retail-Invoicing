@@ -11,6 +11,11 @@ import { useAppStore } from "~/store";
 import SkeletonLoading from "../skeleton-loading";
 import useDeviceType from "~/hooks/use-device-type";
 
+import {
+  MeshWalletConnectLazy,
+  PayWithWalletButtonLazy,
+} from "~/components/mesh/dynamic-mesh";
+
 const PaymentModal = () => {
   const { setModal } = useAppStore();
 
@@ -64,6 +69,16 @@ const PaymentModal = () => {
       />
       <div className="bg2 h-full w-full rounded-lg px-5 py-[5%]">
         <div>
+          <div className="relative z-20 mb-6 flex flex-wrap items-center justify-between gap-3">
+            <MeshWalletConnectLazy />
+            {data?.payment_address && data.amount != null && data.status !== 1 ? (
+              <PayWithWalletButtonLazy
+                recipientAddress={data.payment_address}
+                amountAda={data.amount}
+                disabled={false}
+              />
+            ) : null}
+          </div>
           <div className="relative z-20 mb-16">
             <ProgressFlow currentStep={data?.status ?? 0} />
           </div>
