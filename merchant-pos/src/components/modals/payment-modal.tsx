@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useRouter } from "next/router";
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import QRCode from "react-qr-code";
@@ -14,10 +15,13 @@ import useDeviceType from "~/hooks/use-device-type";
 import {
   MeshWalletConnectLazy,
   PayWithWalletButtonLazy,
+  PayWithHydraButtonLazy,
 } from "~/components/mesh/dynamic-mesh";
 
 const PaymentModal = () => {
-  const { setModal } = useAppStore();
+  const { setModal, setSettlementLayer } = useAppStore();
+  const [forcedL1, setForcedL1] = useState(false);
+  const [detectedLayer, setDetectedLayer] = useState<"L1" | "L2" | null>(null);
 
   const deviceType = useDeviceType();
 
@@ -25,29 +29,43 @@ const PaymentModal = () => {
 
   const { tx } = router.query;
 
-  const { data } = useQuery<{
+  const onFallbackL1 = useCallback(() => {
+    setForcedL1(true);
+    setDetectedLayer("L1");
+    setSettlementLayer("L1");
+    toast.error("Hydra L2 unavailable — falling back to on-chain payment.");
+  }, [setSettlementLayer]);
+
+  type PaymentStatusResponse = {
     status: 0 | 1;
     payment_address: string;
     amount: number;
-  }>({
+    settlement_layer?: "L1" | "L2";
+    hydra_status?: string;
+  };
+
+  const { data } = useQuery<PaymentStatusResponse>({
     queryKey: ["paymentStatus", tx],
     queryFn: async ({ signal }) => {
-      const response = await axios.get<{
-        status: 0 | 1;
-        payment_address: string;
-        amount: number;
-      }>(`/api/payment?tx=${tx as string}`, {
-        signal,
-      });
+      const response = await axios.get<PaymentStatusResponse>(
+        `/api/payment?tx=${tx as string}`,
+        { signal },
+      );
 
       if (response?.data?.status === 1) {
         setModal("SUCCESS");
       }
+      if (response?.data?.settlement_layer && !detectedLayer) {
+        setDetectedLayer(response.data.settlement_layer);
+        setSettlementLayer(response.data.settlement_layer);
+      }
 
       return response.data;
     },
-    refetchInterval: 2000,
+    refetchInterval: detectedLayer === "L2" && !forcedL1 ? 500 : 2000,
   });
+
+  const isL2 = data?.settlement_layer === "L2" && !forcedL1;
 
   return (
     <motion.section
@@ -70,13 +88,35 @@ const PaymentModal = () => {
       <div className="bg2 h-full w-full rounded-lg px-5 py-[5%]">
         <div>
           <div className="relative z-20 mb-6 flex flex-wrap items-center justify-between gap-3">
-            <MeshWalletConnectLazy />
+            <div className="flex items-center gap-2">
+              <MeshWalletConnectLazy />
+              {isL2 && (
+                <span className="rounded-full bg-cyan-500/20 px-2.5 py-0.5 text-xs font-semibold text-cyan-300 border border-cyan-400/30">
+                  L2 Hydra
+                </span>
+              )}
+              {!isL2 && data?.settlement_layer && (
+                <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-gray-300 border border-white/20">
+                  L1 On-chain
+                </span>
+              )}
+            </div>
             {data?.payment_address && data.amount != null && data.status !== 1 ? (
-              <PayWithWalletButtonLazy
-                recipientAddress={data.payment_address}
-                amountAda={data.amount}
-                disabled={false}
-              />
+              isL2 ? (
+                <PayWithHydraButtonLazy
+                  recipientAddress={data.payment_address}
+                  amountAda={data.amount}
+                  txId={tx as string}
+                  disabled={false}
+                  onFallbackL1={onFallbackL1}
+                />
+              ) : (
+                <PayWithWalletButtonLazy
+                  recipientAddress={data.payment_address}
+                  amountAda={data.amount}
+                  disabled={false}
+                />
+              )
             ) : null}
           </div>
           <div className="relative z-20 mb-16">

@@ -50,8 +50,13 @@ export const CreateInvoiceBodySchema = z.object({
   metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
+export const SettlementLayerSchema = z.enum(["L1", "L2"]).optional();
+
 export const UpdateInvoiceBodySchema = CreateInvoiceBodySchema.partial().extend({
   status: InvoiceStatusSchema.optional(),
+  settlement_layer: SettlementLayerSchema,
+  hydra_tx_id: z.string().optional(),
+  hydra_confirmed_at: z.string().datetime().optional(),
 });
 
 export function computeTotal(asset, lineItems) {

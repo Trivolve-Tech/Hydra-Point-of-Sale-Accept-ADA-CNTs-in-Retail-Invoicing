@@ -29,3 +29,13 @@ invoice-backend/data/
 
 # Dependencies (install locally)
 node_modules/
+
+# Claude Code config
+.claude/
+
+# Temp Playwright recordings
+docs/demo-videos/*.webm
+
+# Root package manager artifacts (not a workspace root)
+/package.json
+/package-lock.json

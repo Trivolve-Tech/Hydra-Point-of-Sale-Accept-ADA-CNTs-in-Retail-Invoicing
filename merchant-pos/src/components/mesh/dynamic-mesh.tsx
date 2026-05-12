@@ -9,3 +9,8 @@ export const PayWithWalletButtonLazy = dynamic(
   () => import("./PayWithWalletButton"),
   { ssr: false },
 );
+
+export const PayWithHydraButtonLazy = dynamic(
+  () => import("./PayWithHydraButton"),
+  { ssr: false },
+);

@@ -7,7 +7,7 @@ import AnimatedSVG from "../animated-svg";
 import { useRouter } from "next/router";
 
 const SuccessModal = () => {
-  const { setModal } = useAppStore();
+  const { setModal, settlementLayer } = useAppStore();
   const router = useRouter();
 
   return (
@@ -37,6 +37,16 @@ const SuccessModal = () => {
             <h1 className="font-[offbit-dot-bold] text-3xl text-white md:text-4xl">
               Transaction Completed
             </h1>
+            {settlementLayer === "L2" && (
+              <span className="mx-auto rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-semibold text-cyan-300 border border-cyan-400/30">
+                Settled via Hydra L2
+              </span>
+            )}
+            {settlementLayer === "L1" && (
+              <span className="mx-auto rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-gray-300 border border-white/20">
+                Settled on L1
+              </span>
+            )}
             {router.query.tx && (
               <h2 className="text-sm text-gray-400">
                 Ref ID: {router.query.tx}

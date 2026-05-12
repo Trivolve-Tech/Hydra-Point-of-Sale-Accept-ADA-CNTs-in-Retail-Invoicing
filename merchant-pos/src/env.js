@@ -20,6 +20,10 @@ export const env = createEnv({
     NEXT_PUBLIC_CARDANO_NETWORK: z
       .enum(["mainnet", "preprod", "preview"])
       .optional(),
+    NEXT_PUBLIC_HYDRA_ENABLED: z
+      .enum(["true", "false"])
+      .optional()
+      .default("false"),
   },
 
   /**
@@ -31,6 +35,7 @@ export const env = createEnv({
     NEXT_PUBLIC_BLOCKFROST_PROJECT_ID:
       process.env.NEXT_PUBLIC_BLOCKFROST_PROJECT_ID,
     NEXT_PUBLIC_CARDANO_NETWORK: process.env.NEXT_PUBLIC_CARDANO_NETWORK,
+    NEXT_PUBLIC_HYDRA_ENABLED: process.env.NEXT_PUBLIC_HYDRA_ENABLED,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

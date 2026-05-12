@@ -148,6 +148,112 @@ The repo **does not track** the Playwright package (`/e2e-testing/`), root test 
 
 ---
 
+## Hydra L2 Payment Integration
+
+### Overview
+
+The PoS system now supports **Hydra Layer-2 settlement** for instant ADA/CNT payments with automatic **L1 fallback** when Hydra is unavailable. The integration is fully transparent to merchants — payments route through Hydra when available and fall back to standard Cardano L1 without breaking the flow.
+
+### Hydra Client SDK
+
+A full TypeScript port of the Hydra protocol client lives in `merchant-pos/src/server/hydra/`:
+
+| Module | Purpose |
+|--------|---------|
+| `config.ts` | Connection config (host/port/TLS), URI builders |
+| `types.ts` | Discriminated union message types (Greetings, TxValid, TxInvalid, Snapshot, etc.) |
+| `parser.ts` | JSON frame parser: hydra-node WebSocket → typed messages |
+| `client-input.ts` | Protocol input builders (Init, NewTx, Close, Fanout, Contest, etc.) |
+| `session.ts` | Raw WebSocket lifecycle |
+| `reconnecting-session.ts` | Auto-reconnect with exponential backoff (200ms initial, 3s cap) |
+| `seq-tracker.ts` | Message deduplication across reconnects |
+| `hydra-http.ts` | 13 REST endpoints (getHeadState, postTransaction, postCommit, etc.) |
+| `hydra-head-facade.ts` | High-level orchestration composing WS + HTTP + seq tracking |
+| `payment-router.ts` | Hybrid L1/L2 selector with L2 tx submission |
+| `singleton.ts` | Lazy singleton with env-based config and metrics wiring |
+| `metrics.ts` | Transaction speed, stability, and fallback event recording |
+| `feedback-store.ts` | Merchant pilot feedback collection |
+
+### Hybrid L1/L2 Routing
+
+Payment routing logic (per `fr-060`, `fr-061` from the requirements spec):
+
+1. On `POST /api/payment`, the router checks if Hydra is enabled, connected, and the head is `Open`
+2. If available and `prefer_hydra: true` (default), the payment is created with `settlement_layer: "L2"`
+3. If Hydra is unavailable, the payment automatically routes to `settlement_layer: "L1"` with a `l1_fallback_reason`
+4. L2 payments are confirmed via Hydra WebSocket (`TxValid`/`TxInvalid`) with a 5-second timeout
+5. If L2 submission fails, the payment falls back to L1 Blockfrost polling
+
+### CNT Support on L2
+
+CNT (Cardano Native Token) transactions on L2 work identically to ADA — the Hydra head processes any valid Cardano transaction CBOR. The transaction is built by the CIP-30 wallet (which handles multi-asset outputs), signed, and submitted as CBOR hex to the Hydra node's `/transaction` endpoint. The asset representation (`{ unit: "<policyId>.<assetNameHex>", quantity: "..." }`) is consistent across L1 and L2.
+
+### Hydra API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/hydra/status` | GET | Hydra head health (available, headState, connectionState) |
+| `/api/hydra/submit` | POST | Submit signed L2 transaction (`{ tx_id, cbor_hex }`) |
+| `/api/hydra/metrics` | GET | Pilot metrics summary (tx counts, avg times, fallback data) |
+| `/api/hydra/feedback` | GET/POST | Merchant UX feedback (rating + comments) |
+| `/api/hydra/pilot-report.pdf` | GET | Generated PDF pilot report with all metrics |
+
+### Payment Record Fields (Extended)
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `settlement_layer` | `"L1"` \| `"L2"` | Which layer settled this payment |
+| `hydra_status` | `"pending"` \| `"confirmed"` \| `"failed"` | L2 settlement status |
+| `hydra_tx_id` | string | Hydra transaction ID on confirmation |
+| `hydra_confirmed_at` | ISO8601 | When L2/L1 confirmation was recorded |
+| `l1_fallback_reason` | string | Why the payment fell back to L1 |
+| `created_at` | ISO8601 | Payment creation timestamp |
+
+### Hydra Environment Variables
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `HYDRA_ENABLE` | No | `false` | Enable Hydra L2 subsystem |
+| `HYDRA_NODE_HOST` | If enabled | — | Hydra node hostname |
+| `HYDRA_NODE_PORT` | No | `4001` | Hydra node API port |
+| `HYDRA_NODE_SECURE` | No | `false` | Use WSS/HTTPS |
+| `NEXT_PUBLIC_HYDRA_ENABLED` | No | `false` | Show L2 UI elements in browser |
+
+### Pilot Infrastructure
+
+Two Docker Compose configurations for testing:
+
+- `docker/docker-compose.preprod.yml` — Preprod testnet (magic=1)
+- `docker/docker-compose.preview.yml` — Preview testnet (magic=2)
+
+Each stack includes: cardano-node, hydra-node (v0.20.0), invoice-backend, and merchant-pos.
+
+See [`docs/HYDRA_TESTNET_DEMO.md`](./docs/HYDRA_TESTNET_DEMO.md) for the full demo walkthrough.
+
+### Metrics & Pilot Report
+
+The metrics collector records:
+- **Payment creation** events with settlement layer
+- **Payment confirmation** events with confirmation time (ms)
+- **L2 fallback** events with reasons
+- **Hydra connection** state changes
+
+The pilot report PDF (`GET /api/hydra/pilot-report.pdf`) includes:
+1. Executive Summary
+2. Transaction Speed Benchmarks (L1 vs L2 avg confirmation times)
+3. Stability Metrics (fallback counts, connection events)
+4. UX Feedback Summary (ratings, comments)
+5. Recommendations
+
+### Invoice Backend Hydra Awareness
+
+The invoice backend validation schema accepts optional Hydra fields on update:
+- `settlement_layer` (`"L1"` | `"L2"`)
+- `hydra_tx_id` (string)
+- `hydra_confirmed_at` (ISO8601 datetime)
+
+---
+
 ## API examples (invoice-backend)
 
 ### Create invoice (ADA)

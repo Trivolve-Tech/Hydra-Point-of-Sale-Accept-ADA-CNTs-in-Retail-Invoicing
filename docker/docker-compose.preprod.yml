@@ -1,0 +1,80 @@
+version: "3.9"
+
+services:
+  cardano-node:
+    image: ghcr.io/intersectmbo/cardano-node:10.4.1
+    volumes:
+      - cardano-data-preprod:/data
+      - ./hydra-node/config:/config
+    environment:
+      NETWORK: preprod
+    command:
+      - run
+      - --topology
+      - /config/topology-preprod.json
+      - --database-path
+      - /data/db
+      - --socket-path
+      - /data/node.socket
+      - --config
+      - /config/config-preprod.json
+    restart: unless-stopped
+
+  hydra-node:
+    image: ghcr.io/cardano-scaling/hydra-node:0.20.0
+    depends_on:
+      - cardano-node
+    volumes:
+      - cardano-data-preprod:/cardano:ro
+      - hydra-data-preprod:/data
+      - ./hydra-node/keys:/keys:ro
+    environment:
+      HYDRA_SIGNING_KEY: /keys/hydra.sk
+      CARDANO_SIGNING_KEY: /keys/cardano.sk
+    command:
+      - --api-host
+      - "0.0.0.0"
+      - --api-port
+      - "4001"
+      - --node-socket
+      - /cardano/node.socket
+      - --persistence-dir
+      - /data
+      - --testnet-magic
+      - "1"
+    ports:
+      - "4001:4001"
+    restart: unless-stopped
+
+  invoice-backend:
+    build:
+      context: ../invoice-backend
+      dockerfile: ../docker/Dockerfile.invoice-backend
+    ports:
+      - "7071:7071"
+    environment:
+      PORT: 7071
+    restart: unless-stopped
+
+  merchant-pos:
+    build:
+      context: ../merchant-pos
+      dockerfile: ../docker/Dockerfile.merchant-pos
+    depends_on:
+      - invoice-backend
+      - hydra-node
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.preprod
+    environment:
+      INVOICE_BACKEND_URL: http://invoice-backend:7071
+      HYDRA_NODE_HOST: hydra-node
+      HYDRA_NODE_PORT: 4001
+      HYDRA_ENABLE: "true"
+      NEXT_PUBLIC_HYDRA_ENABLED: "true"
+    restart: unless-stopped
+
+volumes:
+  cardano-data-preprod:
+  hydra-data-preprod:
