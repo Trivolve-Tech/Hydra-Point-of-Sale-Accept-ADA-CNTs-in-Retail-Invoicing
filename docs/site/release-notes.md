@@ -18,3 +18,4 @@ Headline pilot metrics (from the [Hydra PoS Pilot Report](https://github.com/Tri
 - **L2 confirmation:** 380 ms average, **126×** faster than L1
 - **L2 success rate:** 94.2%; **5.8%** clean L1 fall-back
 - **Merchant rating:** 4.4 / 5 across 8 respondents
+
