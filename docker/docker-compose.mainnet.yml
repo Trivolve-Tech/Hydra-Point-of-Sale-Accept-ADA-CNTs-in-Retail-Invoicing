@@ -1,0 +1,100 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  Hydra Point-of-Sale — MAINNET docker compose
+#
+#  ⚠️ This stack settles in real ADA on Cardano mainnet. Hydra Head on mainnet
+#  is still considered experimental by Input Output (see
+#  https://hydra.family/head-protocol/docs/getting-started). Read
+#  docs/site/deployment-mainnet.md fully before running:
+#
+#    - Use a dedicated mainnet wallet seeded only with the float you can
+#      afford to lock into a Hydra head.
+#    - Generate fresh hydra.sk + cardano.sk via `hydra-tools` into
+#      ./hydra-node/keys/ before bringing the stack up; do NOT reuse testnet
+#      keys.
+#    - Set CARDANO_NETWORK=mainnet in .env.mainnet and confirm
+#      E2E_ENABLED is NOT set; the merchant-pos e2e wallet-addresses route
+#      refuses to start on mainnet without that explicit override.
+#    - Front the merchant-pos service with a TLS-terminating reverse proxy
+#      (Caddy / nginx) before exposing it publicly.
+# ─────────────────────────────────────────────────────────────────────────────
+version: "3.9"
+
+services:
+  cardano-node:
+    image: ghcr.io/intersectmbo/cardano-node:10.4.1
+    volumes:
+      - cardano-data-mainnet:/data
+      - ./hydra-node/config:/config
+    environment:
+      NETWORK: mainnet
+    command:
+      - run
+      - --topology
+      - /config/topology-mainnet.json
+      - --database-path
+      - /data/db
+      - --socket-path
+      - /data/node.socket
+      - --config
+      - /config/config-mainnet.json
+    restart: unless-stopped
+
+  hydra-node:
+    image: ghcr.io/cardano-scaling/hydra-node:0.20.0
+    depends_on:
+      - cardano-node
+    volumes:
+      - cardano-data-mainnet:/cardano:ro
+      - hydra-data-mainnet:/data
+      - ./hydra-node/keys:/keys:ro
+    environment:
+      HYDRA_SIGNING_KEY: /keys/hydra.sk
+      CARDANO_SIGNING_KEY: /keys/cardano.sk
+    command:
+      - --api-host
+      - "0.0.0.0"
+      - --api-port
+      - "4001"
+      - --node-socket
+      - /cardano/node.socket
+      - --persistence-dir
+      - /data
+      # Mainnet has no `--testnet-magic`; the absence selects Cardano mainnet.
+    ports:
+      - "4001:4001"
+    restart: unless-stopped
+
+  invoice-backend:
+    build:
+      context: ../invoice-backend
+      dockerfile: ../docker/Dockerfile.invoice-backend
+    ports:
+      - "7071:7071"
+    environment:
+      PORT: 7071
+    restart: unless-stopped
+
+  merchant-pos:
+    build:
+      context: ../merchant-pos
+      dockerfile: ../docker/Dockerfile.merchant-pos
+    depends_on:
+      - invoice-backend
+      - hydra-node
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.mainnet
+    environment:
+      INVOICE_BACKEND_URL: http://invoice-backend:7071
+      HYDRA_NODE_HOST: hydra-node
+      HYDRA_NODE_PORT: 4001
+      HYDRA_ENABLE: "true"
+      NEXT_PUBLIC_HYDRA_ENABLED: "true"
+      CARDANO_NETWORK: mainnet
+      NEXT_PUBLIC_CARDANO_NETWORK: mainnet
+    restart: unless-stopped
+
+volumes:
+  cardano-data-mainnet:
+  hydra-data-mainnet:

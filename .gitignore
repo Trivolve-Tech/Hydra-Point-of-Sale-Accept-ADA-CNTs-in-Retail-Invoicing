@@ -39,3 +39,11 @@ docs/demo-videos/*.webm
 # Root package manager artifacts (not a workspace root)
 /package.json
 /package-lock.json
+
+# MkDocs build output (CI re-renders on push)
+/site/
+
+# Live docker env files (templates with the .example suffix are committed)
+docker/.env.preprod
+docker/.env.preview
+docker/.env.mainnet
