@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read tag-matching changelog section
+        id: changelog
+        run: |
+          if [ -f CHANGELOG.md ]; then
+            awk -v tag="${GITHUB_REF_NAME#v}" '
+              $0 ~ "^## \\[" tag "\\]" {capture=1; print; next}
+              capture && /^## \[/ {exit}
+              capture {print}
+            ' CHANGELOG.md > release-notes.md
+          fi
+          if [ ! -s release-notes.md ]; then
+            echo "${GITHUB_REF_NAME} release" > release-notes.md
+          fi
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body_path: release-notes.md
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          generate_release_notes: true
