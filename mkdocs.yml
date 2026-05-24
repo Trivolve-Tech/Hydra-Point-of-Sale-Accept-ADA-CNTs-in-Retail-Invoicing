@@ -1,0 +1,60 @@
+site_name: Hydra Point-of-Sale
+site_description: Accept ADA and Cardano native tokens at retail checkout, with Hydra L2 settlement for sub-second confirmation.
+site_url: https://trivolve-tech.github.io/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/
+repo_url: https://github.com/Trivolve-Tech/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing
+repo_name: Trivolve-Tech/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing
+edit_uri: edit/main/docs/site/
+
+docs_dir: docs/site
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - content.code.copy
+    - content.code.annotate
+    - search.highlight
+  palette:
+    - scheme: default
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Architecture: architecture.md
+  - Deployment:
+      - Testnet (Preprod / Preview): deployment-testnet.md
+      - Mainnet: deployment-mainnet.md
+  - Integration:
+      - Merchant: integration-merchant.md
+      - Wallet: integration-wallet.md
+  - API Reference: api-reference.md
+  - Release Notes: release-notes.md
