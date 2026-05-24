@@ -1,10 +1,42 @@
 # Hydra Point-of-Sale (PoS) + Invoicing (ADA/CNT, Hydra-first)
 
-This repository contains the **requirements** and **technical architecture** for an open-source, self-hosted, non-custodial PoS + invoicing toolkit for **ADA** and **Cardano Native Tokens (CNTs)** with **Hydra Layer-2 settlement** and automatic Layer-1 fallback.
+[![Release](https://img.shields.io/github/v/release/Trivolve-Tech/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing?display_name=tag&sort=semver)](https://github.com/Trivolve-Tech/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Docs](https://img.shields.io/badge/docs-github.io-blue)](https://trivolve-tech.github.io/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/)
+[![Docs build](https://github.com/Trivolve-Tech/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/actions/workflows/docs.yml/badge.svg)](https://github.com/Trivolve-Tech/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/actions/workflows/docs.yml)
 
-It also includes an **independent invoice backend**, a **Next.js merchant UI** with invoice API proxies, and **CIP-30 browser wallet** integration (via [Mesh](https://meshjs.dev/)) for in-browser payment initiation on Cardano L1.
+> **v1.0.0 mainnet release.** Open-source, self-hosted, non-custodial PoS + invoicing toolkit for **ADA** and **Cardano Native Tokens (CNTs)** with **Hydra Layer-2 settlement** and automatic Layer-1 fallback.
 
-**Detailed feature list, file map, and API examples:** see [`FEATURES_AND_DEVELOPMENT.md`](./FEATURES_AND_DEVELOPMENT.md).
+## Quick start
+
+```bash
+git clone https://github.com/Trivolve-Tech/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing.git
+cd Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing
+cp docker/.env.preprod.example docker/.env.preprod   # or .env.mainnet for production
+docker compose -f docker/docker-compose.preprod.yml up -d
+open http://localhost:3000
+```
+
+Full instructions: [Getting Started](https://trivolve-tech.github.io/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/getting-started/).
+
+## Documentation
+
+The full deployment + integration documentation site lives at
+**https://trivolve-tech.github.io/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/** (rebuilt by `.github/workflows/docs.yml` on every push to `main`). Highlights:
+
+- [Architecture overview](https://trivolve-tech.github.io/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/architecture/)
+- [Testnet deployment (Preprod / Preview)](https://trivolve-tech.github.io/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/deployment-testnet/)
+- [Mainnet deployment + hardening checklist](https://trivolve-tech.github.io/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/deployment-mainnet/)
+- [Merchant + wallet integration guides](https://trivolve-tech.github.io/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/integration-merchant/)
+- [HTTP API reference](https://trivolve-tech.github.io/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/api-reference/)
+
+In-repo, the same Markdown sources live under [`docs/site/`](./docs/site/).
+
+## Release
+
+[`v1.0.0`](https://github.com/Trivolve-Tech/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/releases/tag/v1.0.0) — first mainnet-ready cut. See [`CHANGELOG.md`](./CHANGELOG.md) for the road from spec PDF to v1.0.0.
+
+For component-level feature inventories, file maps, and curl examples, see [`FEATURES_AND_DEVELOPMENT.md`](./FEATURES_AND_DEVELOPMENT.md).
 
 ## Repository contents
 
