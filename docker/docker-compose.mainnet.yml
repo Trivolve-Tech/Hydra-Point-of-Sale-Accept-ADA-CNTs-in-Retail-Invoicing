@@ -1,30 +1,21 @@
-# ─────────────────────────────────────────────────────────────────────────────
-#  Hydra Point-of-Sale — MAINNET docker compose
+# Base mainnet stack.
 #
-#  ⚠️ This stack settles in real ADA on Cardano mainnet. Hydra Head on mainnet
-#  is still considered experimental by Input Output (see
-#  https://hydra.family/head-protocol/docs/getting-started). Read
-#  docs/site/deployment-mainnet.md fully before running:
+# ⚠️ Real ADA settles in heads spawned against this stack. Read
+#    docs/ops/mainnet-deployment.md fully before running:
+#      - generate fresh keys via hydra-tools into ../hydra/keys/
+#      - front the `pos` service with a TLS-terminating reverse proxy
+#      - sync the mainnet cardano-node fully before opening any heads
 #
-#    - Use a dedicated mainnet wallet seeded only with the float you can
-#      afford to lock into a Hydra head.
-#    - Generate fresh hydra.sk + cardano.sk via `hydra-tools` into
-#      ./hydra-node/keys/ before bringing the stack up; do NOT reuse testnet
-#      keys.
-#    - Set CARDANO_NETWORK=mainnet in .env.mainnet and confirm
-#      E2E_ENABLED is NOT set; the merchant-pos e2e wallet-addresses route
-#      refuses to start on mainnet without that explicit override.
-#    - Front the merchant-pos service with a TLS-terminating reverse proxy
-#      (Caddy / nginx) before exposing it publicly.
-# ─────────────────────────────────────────────────────────────────────────────
-version: "3.9"
+# Per-customer 2-party heads are rendered into ./heads/<head_id>.yml by the
+# orchestrator (Phase F). No static hydra-node lives in this base stack.
+name: hydra-pos-mainnet
 
 services:
   cardano-node:
-    image: ghcr.io/intersectmbo/cardano-node:10.4.1
+    image: ghcr.io/intersectmbo/cardano-node:11.0.1
     volumes:
       - cardano-data-mainnet:/data
-      - ./hydra-node/config:/config
+      - ../hydra/config:/config:ro
     environment:
       NETWORK: mainnet
     command:
@@ -39,62 +30,29 @@ services:
       - /config/config-mainnet.json
     restart: unless-stopped
 
-  hydra-node:
-    image: ghcr.io/cardano-scaling/hydra-node:0.20.0
-    depends_on:
-      - cardano-node
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: hydra_pos
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      POSTGRES_DB: hydra_pos
+    secrets:
+      - postgres_password
     volumes:
-      - cardano-data-mainnet:/cardano:ro
-      - hydra-data-mainnet:/data
-      - ./hydra-node/keys:/keys:ro
-    environment:
-      HYDRA_SIGNING_KEY: /keys/hydra.sk
-      CARDANO_SIGNING_KEY: /keys/cardano.sk
-    command:
-      - --api-host
-      - "0.0.0.0"
-      - --api-port
-      - "4001"
-      - --node-socket
-      - /cardano/node.socket
-      - --persistence-dir
-      - /data
-      # Mainnet has no `--testnet-magic`; the absence selects Cardano mainnet.
-    ports:
-      - "4001:4001"
+      - postgres-data-mainnet:/var/lib/postgresql/data
     restart: unless-stopped
 
-  invoice-backend:
-    build:
-      context: ../invoice-backend
-      dockerfile: ../docker/Dockerfile.invoice-backend
-    ports:
-      - "7071:7071"
-    environment:
-      PORT: 7071
-    restart: unless-stopped
+secrets:
+  postgres_password:
+    file: ../hydra/keys/postgres_password
 
-  merchant-pos:
-    build:
-      context: ../merchant-pos
-      dockerfile: ../docker/Dockerfile.merchant-pos
-    depends_on:
-      - invoice-backend
-      - hydra-node
-    ports:
-      - "3000:3000"
-    env_file:
-      - .env.mainnet
-    environment:
-      INVOICE_BACKEND_URL: http://invoice-backend:7071
-      HYDRA_NODE_HOST: hydra-node
-      HYDRA_NODE_PORT: 4001
-      HYDRA_ENABLE: "true"
-      NEXT_PUBLIC_HYDRA_ENABLED: "true"
-      CARDANO_NETWORK: mainnet
-      NEXT_PUBLIC_CARDANO_NETWORK: mainnet
-    restart: unless-stopped
+  cardano-data-mainnet:
+    driver_opts:
+      type: none
+      o: bind
+      device: ${CARDANO_DATA_DIR:-./data/cardano-mainnet}
+  postgres-data-mainnet:
 
-volumes:
-  cardano-data-mainnet:
-  hydra-data-mainnet:
+networks:
+  default:
+    name: hydra-pos-mainnet

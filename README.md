@@ -1,121 +1,111 @@
-# Hydra Point-of-Sale (PoS) + Invoicing (ADA/CNT, Hydra-first)
+# Hydra Point-of-Sale (PoS) + Invoicing — Mainnet
 
-[![Release](https://img.shields.io/github/v/release/Trivolve-Tech/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing?display_name=tag&sort=semver)](https://github.com/Trivolve-Tech/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Docs](https://img.shields.io/badge/docs-github.io-blue)](https://trivolve-tech.github.io/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/)
-[![Docs build](https://github.com/Trivolve-Tech/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/actions/workflows/docs.yml/badge.svg)](https://github.com/Trivolve-Tech/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/actions/workflows/docs.yml)
 
-> **v1.0.0 mainnet release.** Open-source, self-hosted, non-custodial PoS + invoicing toolkit for **ADA** and **Cardano Native Tokens (CNTs)** with **Hydra Layer-2 settlement** and automatic Layer-1 fallback.
+> Self-hosted, open-source point-of-sale + invoicing toolkit for **ADA** and
+> **Cardano Native Tokens (CNTs)** with **Hydra Layer-2 settlement** on
+> Cardano mainnet. Real ADA, real Hydra heads, real CIP-30 wallets.
+
+The system is **L1 non-custodial, L2 server-signed**: customers sign every L1
+transaction with their own wallet (Vespr / Eternl / Lace …); the server holds
+a per-customer ed25519 spend key that signs in-head L2 transactions. This
+hybrid model is the only design that works with current CIP-30 wallets, which
+refuse to sign for UTxOs that don't exist on L1 (see
+[docs/architecture/hybrid-custody.md](docs/architecture/hybrid-custody.md)).
+
+| Aspect | Detail |
+|---|---|
+| Cardano network | mainnet (preprod template included for testing) |
+| Hydra protocol version | 1.3.0 |
+| L1 wallet integration | CIP-30 (Mesh SDK — Vespr, Eternl, Lace, Nami, Flint…) |
+| L2 signing | Server-held ed25519 key per customer, AES-256-GCM at rest |
+| Database | Postgres + Drizzle ORM |
+| Web stack | Next.js 15 (single app serves merchant + customer dashboards) |
+| L1 submission | Blockfrost (mainnet project key required) |
 
 ## Quick start
 
 ```bash
-git clone https://github.com/Trivolve-Tech/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing.git
+git clone <this-repo>
 cd Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing
-cp docker/.env.preprod.example docker/.env.preprod   # or .env.mainnet for production
-docker compose -f docker/docker-compose.preprod.yml up -d
-open http://localhost:3000
+
+# Fetch the Cardano mainnet genesis bundle (not vendored — public, ~1 MB)
+./scripts/fetch-cardano-mainnet-config.sh
+
+# Mainnet configuration
+cp docker/.env.mainnet.example docker/.env.mainnet
+$EDITOR docker/.env.mainnet        # fill in Blockfrost key, HPOS_KEY_SECRET, etc.
+
+docker compose --env-file docker/.env.mainnet \
+  -f docker/docker-compose.mainnet.yml up -d
+
+# When the cardano-node has caught up to the tip (~150 GB sync), open
+# the orchestrator endpoint to bring up a Hydra head:
+curl -X POST http://localhost:3000/api/heads/open
 ```
 
-Full instructions: [Getting Started](https://trivolve-tech.github.io/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/getting-started/).
+The merchant dashboard lives at `https://merchant.local` (route through your
+own reverse proxy + DNS or a Cloudflare tunnel), and the customer payment
+page at `https://customer.local`. Until you set them up, both are reachable
+directly on `http://localhost:3000` (`/` is merchant, `/customer` is customer).
 
-## Documentation
+> **You'll need ~150 GB of disk** for the mainnet chain and ~5 ADA per
+> Hydra head you plan to open (cardano-node fees for the Init/Commit/Close
+> txns). Read [`docs/architecture/hybrid-custody.md`](docs/architecture/hybrid-custody.md)
+> end to end before sending real ADA.
 
-The full deployment + integration documentation site lives at
-**https://trivolve-tech.github.io/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/** (rebuilt by `.github/workflows/docs.yml` on every push to `main`). Highlights:
+## What's in the box
 
-- [Architecture overview](https://trivolve-tech.github.io/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/architecture/)
-- [Testnet deployment (Preprod / Preview)](https://trivolve-tech.github.io/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/deployment-testnet/)
-- [Mainnet deployment + hardening checklist](https://trivolve-tech.github.io/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/deployment-mainnet/)
-- [Merchant + wallet integration guides](https://trivolve-tech.github.io/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/integration-merchant/)
-- [HTTP API reference](https://trivolve-tech.github.io/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/api-reference/)
+| Path | What it is |
+|---|---|
+| [`merchant-pos/`](./merchant-pos/) | Next.js app. Serves both the merchant dashboard (`/`) and the customer payment page (`/customer`). All HTTP API endpoints under `/api/*`. |
+| [`merchant-pos/src/server/`](./merchant-pos/src/server/) | Hydra-node WebSocket session manager, customer-profile module (per-customer L2 spend keys), Cardano tx builders, payment-router, in-head tx builder + signer, L1 submitter, Postgres data layer. |
+| [`docker/docker-compose.mainnet.yml`](./docker/docker-compose.mainnet.yml) | One-shot bring-up: Postgres + cardano-node + the Next.js app. |
+| [`docker/compose.head.tmpl.yml`](./docker/compose.head.tmpl.yml) | Per-head template the orchestrator instantiates for each `(merchant, customer)` Hydra head. |
+| [`hydra-config/protocol-parameters.json`](./hydra-config/protocol-parameters.json) | In-head ledger protocol parameters (fees/sizes used when building L2 transactions). |
+| [`scripts/derive-merchant-addresses.ts`](./scripts/derive-merchant-addresses.ts) | Derive the operator BIP-39 wallet's per-head fee-funding addresses (so you can pre-fund them before opening each head). |
+| [`scripts/reconcile.ts`](./scripts/reconcile.ts) | Reconcile DB intent state vs hydra-node `/snapshot/utxo`. |
+| [`docs/`](./docs/) | Architecture, operations playbook, key custody, mainnet deployment guide. |
+| [`legacy-invoice-backend/`](./legacy-invoice-backend/) | The original v0 Express invoice CRUD service. Superseded by `/api/invoices` in the Next.js app; kept for reference. |
 
-In-repo, the same Markdown sources live under [`docs/site/`](./docs/site/).
+## Documentation map
 
-## Release
+- [Hybrid custody architecture](docs/architecture/hybrid-custody.md) — read this first
+- [Mainnet deployment guide](docs/ops/mainnet-deployment.md)
+- [Key custody policy](docs/ops/key-custody.md)
+- [Incident playbook](docs/ops/incident-playbook.md)
+- [Tuning `--deposit-period`](docs/ops/deposit-period-tuning.md)
+- [HTTP API reference](docs/api-reference.md)
 
-[`v1.0.0`](https://github.com/Trivolve-Tech/Hydra-Point-of-Sale-Accept-ADA-CNTs-in-Retail-Invoicing/releases/tag/v1.0.0) — first mainnet-ready cut. See [`CHANGELOG.md`](./CHANGELOG.md) for the road from spec PDF to v1.0.0.
+## Repository layout
 
-For component-level feature inventories, file maps, and curl examples, see [`FEATURES_AND_DEVELOPMENT.md`](./FEATURES_AND_DEVELOPMENT.md).
-
-## Repository contents
-
-| Area | Path | Notes |
-|------|------|--------|
-| Requirements PDF | `Hydra_Point-of-Sale_(PoS)__Invoicing_-_Requirements_Specification_Document.pdf` | Functional + non-functional requirements |
-| Architecture PDF | `Hydra_Point-of-Sale_(PoS)__Invoicing_Technical_architecture_and_design.pdf` | Components, data model, API/event examples |
-| Merchant UI | `merchant-pos/` | Next.js PoS-style UI, invoice proxies, Mesh wallet connect, “Pay with wallet” |
-| Invoicing API | `invoice-backend/` | Standalone REST: CRUD + PDF + Excel |
-| Feature & dev doc | [`FEATURES_AND_DEVELOPMENT.md`](./FEATURES_AND_DEVELOPMENT.md) | Wallet/payment wiring, env vars, `curl` examples |
-| Milestone demo videos | [`docs/demo-videos/`](./docs/demo-videos/) | MP4 PoA + [`docs/demo-videos/README.md`](./docs/demo-videos/README.md) |
-
-### Wallet connect + in-browser payment (evidence pointers)
-
-- **CIP-30 picker (Nami, Eternl, Lace, Flint, …):** `merchant-pos/src/components/mesh/MeshWalletConnect.tsx` (lazy-loaded from `dynamic-mesh.tsx`).
-- **Mesh provider (client-only):** `merchant-pos/src/pages/_app.tsx`.
-- **Checkout “Pay with wallet”:** `merchant-pos/src/components/mesh/PayWithWalletButton.tsx` + `payment-modal.tsx`.
-- **Browser network + Blockfrost:** `merchant-pos/src/lib/cardano-browser-config.ts` (`NEXT_PUBLIC_CARDANO_NETWORK`, `NEXT_PUBLIC_BLOCKFROST_PROJECT_ID`).
-- **Server-side payment intent + on-chain status:** `merchant-pos/src/pages/api/payment.ts`, `merchant-pos/src/server/cardano.ts`.
-
-## invoice-backend (standalone service)
-
-### Features
-
-- Create/list/get/update/delete invoices
-- Invoice statuses: `draft`, `issued`, `pending_payment`, `paid`, `expired`, `cancelled`, `failed`
-- ADA/CNT amounts (generic representation):
-  - ADA: `{ "unit": "lovelace", "quantity": "<base-unit-integer>" }`
-  - CNT: `{ "unit": "<policyId>.<assetNameHex>", "quantity": "<base-unit-integer>" }`
-- Exports:
-  - `GET /invoices/:id/pdf`
-  - `GET /exports/invoices.xlsx`
-
-### Run
-
-```bash
-cd invoice-backend
-npm install
-node ./src/index.js
 ```
-
-Server listens on `PORT` (default `7071`).
-
-## merchant-pos
-
-### Features (high level)
-
-- **Invoices:** proxy routes to `invoice-backend` (same paths under `/api/invoices`, exports, PDF).
-- **Payments:** `POST /api/payment` creates a payment intent; `GET /api/payment?tx=…` returns stored intent plus on-chain check and optional Cardanoscan link when paid.
-- **Wallets:** Mesh `CardanoWallet` + `PayWithWalletButton` for user-signed L1 transfers when public Blockfrost env is set.
-
-### Configure
-
-Copy `merchant-pos/.env.example` to `merchant-pos/.env` and set at least:
-
-- **`INVOICE_BACKEND_URL`** — e.g. `http://localhost:7071`
-- **Server chain / treasury (payment intent + monitoring):** `WALLET_SEED_PHRASE`, `BLOCKFROST_KEY`, and typically `CARDANO_NETWORK` (`mainnet` \| `preprod` \| `preview`) plus `BLOCKFROST_URL` if not using the default Blockfrost host (see [`FEATURES_AND_DEVELOPMENT.md`](./FEATURES_AND_DEVELOPMENT.md)).
-- **Browser “Pay with wallet” (optional but required for that button):**
-  - `NEXT_PUBLIC_BLOCKFROST_PROJECT_ID` — Blockfrost project id for the **browser** bundle (use a dedicated key; rate-limit appropriately).
-  - `NEXT_PUBLIC_CARDANO_NETWORK` — `mainnet`, `preprod`, or `preview`; must match the wallet network and the Blockfrost project.
-
-### Run (UI + invoice backend together)
-
-From `merchant-pos/` after `pnpm install` and `npm install` in `invoice-backend/`:
-
-```bash
-cd merchant-pos
-pnpm dev:stack
+.
+├── docker/                       Docker Compose stacks for L1 services
+│   ├── docker-compose.mainnet.yml
+│   ├── docker-compose.preprod.yml
+│   ├── compose.head.tmpl.yml     Per-Hydra-head template
+│   ├── heads/                    Generated per-head compose files (gitignored)
+│   ├── Dockerfile.merchant-pos
+│   └── hydra-node/entrypoint.sh
+├── merchant-pos/                 Next.js app (merchant + customer + API)
+│   ├── src/
+│   │   ├── pages/                Routes
+│   │   ├── pages/api/            HTTP endpoints
+│   │   ├── server/               Hydra session, tx builders, Postgres
+│   │   └── components/           UI (Mesh wallet, gradient cards, …)
+│   ├── public/                   Fonts, logos, ADA/CNT icons
+│   ├── drizzle.config.ts
+│   ├── package.json
+│   └── .env.example
+├── hydra-config/
+│   └── protocol-parameters.json  In-head ledger parameters
+├── docs/                         Markdown docs (architecture, ops, API)
+├── scripts/                      One-shot operator scripts
+├── legacy-invoice-backend/       (legacy v0, superseded)
+└── README.md
 ```
-
-Runs **invoice-backend** on `http://localhost:7071` and **Next.js** on `http://localhost:3000`. Use `pnpm dev` only if the invoice API is already running elsewhere.
-
-### Proxy routes (invoices)
-
-- `GET/POST /api/invoices` → `invoice-backend /invoices`
-- `GET/PATCH/DELETE /api/invoices/:id` → `invoice-backend /invoices/:id`
-- `GET /api/invoices/:id/pdf` → `invoice-backend /invoices/:id/pdf`
-- `GET /api/exports/invoices.xlsx` → `invoice-backend /exports/invoices.xlsx`
 
 ## License
 
-See [`LICENSE`](./LICENSE).
+[MIT](./LICENSE).

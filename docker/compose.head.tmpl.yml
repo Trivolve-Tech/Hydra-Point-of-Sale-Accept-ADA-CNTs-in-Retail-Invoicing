@@ -1,0 +1,141 @@
+# Per-customer head pair template.
+#
+# Rendered by the orchestrator (Phase F) into ./heads/<head_id>.yml with the
+# placeholders below substituted from the heads + head_keys rows. Each rendered
+# file is brought up independently via `docker compose -f heads/<head_id>.yml up -d`.
+#
+# Two services per head: merchant-side and customer-side hydra-node. Both run
+# on merchant infra (the customer's hydra-sk does NOT live on disk here — see
+# Phase G for the browser-side signing protocol).
+#
+# Substituted placeholders:
+#   ${HEAD_ID}                       — UUID
+#   ${NETWORK}                       — preprod | mainnet
+#   ${TESTNET_MAGIC_FLAG}            — "--testnet-magic 1" on preprod, empty on mainnet
+#   ${MERCHANT_API_PORT}             — host port for merchant node API
+#   ${MERCHANT_PEER_PORT}            — host port for merchant node P2P
+#   ${CUSTOMER_API_PORT}             — host port for customer node API
+#   ${CUSTOMER_PEER_PORT}            — host port for customer node P2P
+#   ${HYDRA_SCRIPTS_TX_ID}           — env-specific Hydra scripts tx id
+#   ${CONTESTATION_PERIOD_SECONDS}   — 60 on preprod, 43200 on mainnet
+#   ${MERCHANT_HYDRA_SK_PATH}        — host path to merchant's hydra.sk for this head
+#   ${MERCHANT_CARDANO_SK_PATH}      — host path to merchant's cardano.sk for this head
+#   ${MERCHANT_HYDRA_VK_PATH}        — host path to merchant's hydra.vk (peer of customer-node)
+#   ${MERCHANT_CARDANO_VK_PATH}      — host path to merchant's cardano.vk (peer of customer-node)
+#   ${CUSTOMER_HYDRA_SK_PATH}        — host path to customer's hydra.sk for this head (v1: server-side)
+#   ${CUSTOMER_CARDANO_SK_PATH}      — host path to customer's cardano.sk for this head (v1: server-side)
+#   ${CUSTOMER_HYDRA_VK_PATH}        — host path to customer's hydra.vk (peer of merchant-node)
+#   ${CUSTOMER_CARDANO_VK_PATH}      — host path to customer's cardano.vk (peer of merchant-node)
+#   ${BASE_NETWORK}                  — hydra-pos-preprod | hydra-pos-mainnet (joins base stack)
+#
+# v1 PILOT is fully custodial: both customer keys live on merchant infra under
+# infra/hydra/keys/<head_id>/. Strict non-custody is a v2 commitment; see
+# docs/ops/non-custody-spike.md.
+
+name: hydra-pos-head-${HEAD_ID}
+
+services:
+  merchant-node:
+    image: ghcr.io/cardano-scaling/hydra-node:1.3.0
+    volumes:
+      - cardano-data-${NETWORK}:/cardano:ro
+      - ${HYDRA_CONFIG_DIR:-./infra/hydra/config}:/config:ro
+      - ${MERCHANT_HYDRA_SK_PATH}:/keys/merchant-hydra.sk:ro
+      - ${MERCHANT_CARDANO_SK_PATH}:/keys/merchant-cardano.sk:ro
+      - ${CUSTOMER_HYDRA_VK_PATH}:/keys/customer-hydra.vk:ro
+      - ${CUSTOMER_CARDANO_VK_PATH}:/keys/customer-cardano.vk:ro
+      - hydra-data-${HEAD_ID}-merchant:/data
+    command:
+      - --node-id
+      - merchant-${HEAD_ID}
+      - --api-host
+      - "0.0.0.0"
+      - --api-port
+      - "4001"
+      - --listen
+      - "0.0.0.0:5001"
+      - --advertise
+      - merchant-node:5001
+      - --peer
+      - customer-node:5001
+      - --node-socket
+      - /cardano/node.socket
+      - --persistence-dir
+      - /data
+      - --hydra-signing-key
+      - /keys/merchant-hydra.sk
+      - --cardano-signing-key
+      - /keys/merchant-cardano.sk
+      - --hydra-verification-key
+      - /keys/customer-hydra.vk
+      - --cardano-verification-key
+      - /keys/customer-cardano.vk
+      - --hydra-scripts-tx-id
+      - ${HYDRA_SCRIPTS_TX_ID}
+      - --ledger-protocol-parameters
+      - /config/protocol-parameters.json
+      - --contestation-period
+      - "${CONTESTATION_PERIOD_SECONDS}"
+      ${TESTNET_MAGIC_FLAG}
+    ports:
+      - "${MERCHANT_API_PORT}:4001"
+      - "${MERCHANT_PEER_PORT}:5001"
+    restart: unless-stopped
+
+  customer-node:
+    image: ghcr.io/cardano-scaling/hydra-node:1.3.0
+    volumes:
+      - cardano-data-${NETWORK}:/cardano:ro
+      - ${HYDRA_CONFIG_DIR:-./infra/hydra/config}:/config:ro
+      - ${CUSTOMER_HYDRA_SK_PATH}:/keys/customer-hydra.sk:ro
+      - ${CUSTOMER_CARDANO_SK_PATH}:/keys/customer-cardano.sk:ro
+      - ${MERCHANT_HYDRA_VK_PATH}:/keys/merchant-hydra.vk:ro
+      - ${MERCHANT_CARDANO_VK_PATH}:/keys/merchant-cardano.vk:ro
+      - hydra-data-${HEAD_ID}-customer:/data
+    command:
+      - --node-id
+      - customer-${HEAD_ID}
+      - --api-host
+      - "0.0.0.0"
+      - --api-port
+      - "4001"
+      - --listen
+      - "0.0.0.0:5001"
+      - --advertise
+      - customer-node:5001
+      - --peer
+      - merchant-node:5001
+      - --node-socket
+      - /cardano/node.socket
+      - --persistence-dir
+      - /data
+      - --hydra-signing-key
+      - /keys/customer-hydra.sk
+      - --cardano-signing-key
+      - /keys/customer-cardano.sk
+      - --hydra-verification-key
+      - /keys/merchant-hydra.vk
+      - --cardano-verification-key
+      - /keys/merchant-cardano.vk
+      - --hydra-scripts-tx-id
+      - ${HYDRA_SCRIPTS_TX_ID}
+      - --ledger-protocol-parameters
+      - /config/protocol-parameters.json
+      - --contestation-period
+      - "${CONTESTATION_PERIOD_SECONDS}"
+      ${TESTNET_MAGIC_FLAG}
+    ports:
+      - "${CUSTOMER_API_PORT}:4001"
+      - "${CUSTOMER_PEER_PORT}:5001"
+    restart: unless-stopped
+
+volumes:
+  hydra-data-${HEAD_ID}-merchant:
+  hydra-data-${HEAD_ID}-customer:
+  cardano-data-${NETWORK}:
+    external: true
+
+networks:
+  default:
+    name: ${BASE_NETWORK}
+    external: true

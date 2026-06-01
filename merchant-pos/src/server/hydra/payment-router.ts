@@ -65,6 +65,20 @@ export class HydraPaymentRouter {
   }
 
   async submitL2Transaction(cborHex: string, description?: string): Promise<L2SubmitResult> {
+    // Wait up to 5s for the WS to come up — the facade's connect() is
+    // fire-and-forget so the first call after registry construction may
+    // race the socket handshake.
+    const start = Date.now();
+    while (this.facade.connectionStateValue !== HydraConnectionState.connected) {
+      if (Date.now() - start > 5000) {
+        return {
+          success: false,
+          error: `WebSocket did not connect (state=${this.facade.connectionStateValue})`,
+        };
+      }
+      await new Promise((r) => setTimeout(r, 100));
+    }
+
     const body = {
       cborHex,
       type: "Witnessed Tx ConwayEra",

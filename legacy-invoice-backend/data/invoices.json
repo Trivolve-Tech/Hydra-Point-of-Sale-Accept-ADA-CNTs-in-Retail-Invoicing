@@ -1,0 +1,542 @@
+{
+  "invoices": [
+    {
+      "number": "INV-TEST-001",
+      "status": "issued",
+      "asset": {
+        "unit": "lovelace",
+        "quantity": "5000000"
+      },
+      "line_items": [
+        {
+          "description": "Test Item — Preprod ADA Payment",
+          "quantity": 1,
+          "unit_price": "5000000"
+        }
+      ],
+      "customer": {
+        "name": "Testnet Merchant",
+        "email": "test@preprod.cardano"
+      },
+      "id": "inv_VljUjEJ0aDhu",
+      "created_at": "2026-04-16T11:19:05.671Z",
+      "updated_at": "2026-04-16T11:19:05.671Z",
+      "history": [
+        {
+          "at": "2026-04-16T11:19:05.671Z",
+          "event": "invoice.created",
+          "data": {
+            "status": "issued"
+          }
+        }
+      ]
+    },
+    {
+      "number": "E2E-2026-04-16T11-33-22-245Z",
+      "status": "paid",
+      "asset": {
+        "unit": "lovelace",
+        "quantity": "8000000"
+      },
+      "line_items": [
+        {
+          "description": "Retail sale — item A",
+          "quantity": 1,
+          "unit_price": "5000000"
+        },
+        {
+          "description": "Retail sale — item B",
+          "quantity": 1,
+          "unit_price": "3000000"
+        }
+      ],
+      "customer": {
+        "name": "Walk-in Customer",
+        "email": "customer@preprod.test"
+      },
+      "notes": "E2E test invoice after on-chain PoS collection (Preprod).",
+      "id": "inv_LaBhUB8TGHxw",
+      "created_at": "2026-04-16T11:33:42.732Z",
+      "updated_at": "2026-04-16T11:33:42.732Z",
+      "history": [
+        {
+          "at": "2026-04-16T11:33:42.732Z",
+          "event": "invoice.created",
+          "data": {
+            "status": "paid"
+          }
+        }
+      ]
+    },
+    {
+      "status": "paid",
+      "asset": {
+        "unit": "lovelace",
+        "quantity": "2500000"
+      },
+      "line_items": [
+        {
+          "description": "Demo SKU from E2E",
+          "quantity": 1,
+          "unit_price": "2500000"
+        }
+      ],
+      "customer": {
+        "name": "Playwright buyer",
+        "email": "pw@preprod.test"
+      },
+      "notes": "Created from E2E demo UI (Preprod).",
+      "id": "inv_g3AHrWhsfJBC",
+      "number": "INV-20260416-MYKIQX",
+      "created_at": "2026-04-16T11:54:24.593Z",
+      "updated_at": "2026-04-16T11:54:24.593Z",
+      "history": [
+        {
+          "at": "2026-04-16T11:54:24.593Z",
+          "event": "invoice.created",
+          "data": {
+            "status": "paid"
+          }
+        }
+      ]
+    },
+    {
+      "status": "paid",
+      "asset": {
+        "unit": "lovelace",
+        "quantity": "2500000"
+      },
+      "line_items": [
+        {
+          "description": "Demo SKU from E2E",
+          "quantity": 1,
+          "unit_price": "2500000"
+        }
+      ],
+      "customer": {
+        "name": "Playwright buyer",
+        "email": "pw@preprod.test"
+      },
+      "notes": "Created from E2E demo UI (Preprod).",
+      "id": "inv_DTgYwgSs-7H1",
+      "number": "INV-20260416-O8FOZV",
+      "created_at": "2026-04-16T11:56:00.560Z",
+      "updated_at": "2026-04-16T11:56:00.560Z",
+      "history": [
+        {
+          "at": "2026-04-16T11:56:00.560Z",
+          "event": "invoice.created",
+          "data": {
+            "status": "paid"
+          }
+        }
+      ]
+    },
+    {
+      "status": "paid",
+      "asset": {
+        "unit": "lovelace",
+        "quantity": "2500000"
+      },
+      "line_items": [
+        {
+          "description": "Demo SKU from E2E",
+          "quantity": 1,
+          "unit_price": "2500000"
+        }
+      ],
+      "customer": {
+        "name": "Playwright buyer",
+        "email": "pw@preprod.test"
+      },
+      "notes": "Created from E2E demo UI (Preprod).",
+      "id": "inv_GgtY1UrnSiLA",
+      "number": "INV-20260416-LWVG3U",
+      "created_at": "2026-04-16T12:22:08.355Z",
+      "updated_at": "2026-04-16T12:22:08.355Z",
+      "history": [
+        {
+          "at": "2026-04-16T12:22:08.355Z",
+          "event": "invoice.created",
+          "data": {
+            "status": "paid"
+          }
+        }
+      ]
+    },
+    {
+      "status": "paid",
+      "asset": {
+        "unit": "lovelace",
+        "quantity": "2500000"
+      },
+      "line_items": [
+        {
+          "description": "Demo SKU from E2E",
+          "quantity": 1,
+          "unit_price": "2500000"
+        }
+      ],
+      "customer": {
+        "name": "Playwright buyer",
+        "email": "pw@preprod.test"
+      },
+      "notes": "Created from E2E demo UI (Preprod).",
+      "id": "inv_L2l3FBJkLI_M",
+      "number": "INV-20260416-66NB68",
+      "created_at": "2026-04-16T12:40:10.162Z",
+      "updated_at": "2026-04-16T12:40:10.162Z",
+      "history": [
+        {
+          "at": "2026-04-16T12:40:10.162Z",
+          "event": "invoice.created",
+          "data": {
+            "status": "paid"
+          }
+        }
+      ]
+    },
+    {
+      "status": "paid",
+      "asset": {
+        "unit": "lovelace",
+        "quantity": "2500000"
+      },
+      "line_items": [
+        {
+          "description": "Demo SKU from E2E",
+          "quantity": 1,
+          "unit_price": "2500000"
+        }
+      ],
+      "customer": {
+        "name": "Playwright buyer",
+        "email": "pw@preprod.test"
+      },
+      "notes": "Created from E2E demo UI (Preprod).",
+      "id": "inv_E9mUdoGKP-GS",
+      "number": "INV-20260416-WPP804",
+      "created_at": "2026-04-16T12:42:46.811Z",
+      "updated_at": "2026-04-16T12:42:46.811Z",
+      "history": [
+        {
+          "at": "2026-04-16T12:42:46.811Z",
+          "event": "invoice.created",
+          "data": {
+            "status": "paid"
+          }
+        }
+      ]
+    },
+    {
+      "status": "paid",
+      "asset": {
+        "unit": "lovelace",
+        "quantity": "2500000"
+      },
+      "line_items": [
+        {
+          "description": "Demo SKU from E2E",
+          "quantity": 1,
+          "unit_price": "2500000"
+        }
+      ],
+      "customer": {
+        "name": "Playwright buyer",
+        "email": "pw@preprod.test"
+      },
+      "notes": "Created from E2E demo UI (Preprod).",
+      "id": "inv_wrbiqSDt4x1f",
+      "number": "INV-20260416-0F3TWY",
+      "created_at": "2026-04-16T12:56:57.382Z",
+      "updated_at": "2026-04-16T12:56:57.382Z",
+      "history": [
+        {
+          "at": "2026-04-16T12:56:57.382Z",
+          "event": "invoice.created",
+          "data": {
+            "status": "paid"
+          }
+        }
+      ]
+    },
+    {
+      "status": "paid",
+      "asset": {
+        "unit": "lovelace",
+        "quantity": "2500000"
+      },
+      "line_items": [
+        {
+          "description": "Demo SKU from E2E",
+          "quantity": 1,
+          "unit_price": "2500000"
+        }
+      ],
+      "customer": {
+        "name": "Playwright buyer",
+        "email": "pw@preprod.test"
+      },
+      "notes": "Created from E2E demo UI (Preprod).",
+      "id": "inv_NBWtIZeUI_be",
+      "number": "INV-20260416-ZGMNNN",
+      "created_at": "2026-04-16T12:59:20.914Z",
+      "updated_at": "2026-04-16T12:59:20.914Z",
+      "history": [
+        {
+          "at": "2026-04-16T12:59:20.914Z",
+          "event": "invoice.created",
+          "data": {
+            "status": "paid"
+          }
+        }
+      ]
+    },
+    {
+      "status": "paid",
+      "asset": {
+        "unit": "lovelace",
+        "quantity": "2500000"
+      },
+      "line_items": [
+        {
+          "description": "Split SKU",
+          "quantity": 1,
+          "unit_price": "2500000"
+        }
+      ],
+      "customer": {
+        "name": "Split demo buyer",
+        "email": "split@preprod.test"
+      },
+      "notes": "Created from E2E split demo (Preprod).",
+      "id": "inv_IhN1qeIbpuHn",
+      "number": "INV-20260416-TXBCDZ",
+      "created_at": "2026-04-16T13:01:20.986Z",
+      "updated_at": "2026-04-16T13:01:20.986Z",
+      "history": [
+        {
+          "at": "2026-04-16T13:01:20.986Z",
+          "event": "invoice.created",
+          "data": {
+            "status": "paid"
+          }
+        }
+      ]
+    },
+    {
+      "reference": "ee7c4128-a1a3-4fbc-87c6-de110dc8317c",
+      "status": "pending_payment",
+      "asset": {
+        "unit": "lovelace",
+        "quantity": "5000000"
+      },
+      "line_items": [],
+      "customer": {
+        "name": "Test Merchant"
+      },
+      "notes": "test",
+      "metadata": {
+        "payment_address": "addr_test1vp23hqm3plcrdqpx9kjq4fx3yhex5saywx56j94s5v5xtxsjux2sn",
+        "settlement_layer": "L1"
+      },
+      "id": "inv_wEZLiqiDH-mL",
+      "number": "INV-20260512-ELTDW2",
+      "created_at": "2026-05-12T10:42:43.110Z",
+      "updated_at": "2026-05-12T10:42:43.110Z",
+      "history": [
+        {
+          "at": "2026-05-12T10:42:43.110Z",
+          "event": "invoice.created",
+          "data": {
+            "status": "pending_payment"
+          }
+        }
+      ]
+    },
+    {
+      "reference": "1d17e4ce-13ba-4b6d-98ea-40ebc8b3d0e0",
+      "status": "pending_payment",
+      "asset": {
+        "unit": "lovelace",
+        "quantity": "25000000"
+      },
+      "line_items": [],
+      "customer": {
+        "name": "Trivolve Shop",
+        "email": "shop@trivolve.io"
+      },
+      "notes": "Hydra L2 retail payment",
+      "metadata": {
+        "payment_address": "addr_test1vrrgmpcsv3wjmcl7k032wcfgpgdhqzt0xp0jm0r2d2u9u6csf4wqw",
+        "settlement_layer": "L1"
+      },
+      "id": "inv_UcjwT2TQzNjV",
+      "number": "INV-20260512-O4AHAM",
+      "created_at": "2026-05-12T10:44:54.656Z",
+      "updated_at": "2026-05-12T10:44:54.656Z",
+      "history": [
+        {
+          "at": "2026-05-12T10:44:54.656Z",
+          "event": "invoice.created",
+          "data": {
+            "status": "pending_payment"
+          }
+        }
+      ]
+    },
+    {
+      "reference": "6009a317-0605-48de-9f11-a633c3758ac6",
+      "status": "pending_payment",
+      "asset": {
+        "unit": "lovelace",
+        "quantity": "15000000"
+      },
+      "line_items": [],
+      "customer": {
+        "name": "Demo Shop"
+      },
+      "metadata": {
+        "payment_address": "addr_test1vqgjn87y4tecte3fj075e0vt3l7ug29l27llrdj8dq5cszsu09z6t",
+        "settlement_layer": "L2"
+      },
+      "id": "inv_sQmg1lEKTBXW",
+      "number": "INV-20260512-QLAADY",
+      "created_at": "2026-05-12T10:52:43.548Z",
+      "updated_at": "2026-05-12T10:52:43.548Z",
+      "history": [
+        {
+          "at": "2026-05-12T10:52:43.548Z",
+          "event": "invoice.created",
+          "data": {
+            "status": "pending_payment"
+          }
+        }
+      ]
+    },
+    {
+      "reference": "1cfc6d20-6950-4ec0-8940-6401c1099c9f",
+      "status": "pending_payment",
+      "asset": {
+        "unit": "lovelace",
+        "quantity": "25000000"
+      },
+      "line_items": [],
+      "customer": {
+        "name": "Trivolve Shop",
+        "email": "shop@trivolve.io"
+      },
+      "notes": "Hydra L2 retail payment",
+      "metadata": {
+        "payment_address": "addr_test1vzqzs5fnamzj66kr4f4hud6lvmrnm9vwek70ea0srv9przsh03x2l",
+        "settlement_layer": "L1"
+      },
+      "id": "inv__Y9khCEeVgnF",
+      "number": "INV-20260512-7KUKUS",
+      "created_at": "2026-05-12T11:01:11.627Z",
+      "updated_at": "2026-05-12T11:01:11.627Z",
+      "history": [
+        {
+          "at": "2026-05-12T11:01:11.627Z",
+          "event": "invoice.created",
+          "data": {
+            "status": "pending_payment"
+          }
+        }
+      ]
+    },
+    {
+      "reference": "8d18256c-15d8-4184-809e-e48f759dc166",
+      "status": "pending_payment",
+      "asset": {
+        "unit": "lovelace",
+        "quantity": "25000000"
+      },
+      "line_items": [],
+      "customer": {
+        "name": "Trivolve Shop",
+        "email": "shop@trivolve.io"
+      },
+      "notes": "Hydra L2 retail payment, 25 ADA",
+      "metadata": {
+        "payment_address": "addr_test1vr66qprhtfhxft3h53s9dffn4y6jn076twh9l6tqd7tv76ckgs6x2",
+        "settlement_layer": "L1"
+      },
+      "id": "inv_fNZxCucdXAru",
+      "number": "INV-20260512-3T-VPP",
+      "created_at": "2026-05-12T11:15:10.614Z",
+      "updated_at": "2026-05-12T11:15:10.614Z",
+      "history": [
+        {
+          "at": "2026-05-12T11:15:10.614Z",
+          "event": "invoice.created",
+          "data": {
+            "status": "pending_payment"
+          }
+        }
+      ]
+    },
+    {
+      "reference": "89a5f0a9-b1af-40bd-9bd3-6c586176a9a3",
+      "status": "pending_payment",
+      "asset": {
+        "unit": "lovelace",
+        "quantity": "25000000"
+      },
+      "line_items": [],
+      "customer": {
+        "name": "Trivolve Shop",
+        "email": "shop@trivolve.io"
+      },
+      "notes": "Hydra L2 retail payment, 25 ADA",
+      "metadata": {
+        "payment_address": "addr_test1vq6sc2cgxlgmlv47ckt0hd0lzhhwv790hse6gatplfgncdcvs0gzt",
+        "settlement_layer": "L1"
+      },
+      "id": "inv_1voXuoIcQW2C",
+      "number": "INV-20260512-VKJNXN",
+      "created_at": "2026-05-12T11:30:49.421Z",
+      "updated_at": "2026-05-12T11:30:49.421Z",
+      "history": [
+        {
+          "at": "2026-05-12T11:30:49.421Z",
+          "event": "invoice.created",
+          "data": {
+            "status": "pending_payment"
+          }
+        }
+      ]
+    },
+    {
+      "reference": "fc811b06-4f1f-4662-a30a-66d00fe7bbb2",
+      "status": "pending_payment",
+      "asset": {
+        "unit": "lovelace",
+        "quantity": "25000000"
+      },
+      "line_items": [],
+      "customer": {
+        "name": "Trivolve Shop",
+        "email": "shop@trivolve.io"
+      },
+      "notes": "Hydra L2 retail payment, 25 ADA",
+      "metadata": {
+        "payment_address": "addr_test1vr753julh0ydqappvlz7vtdsfd47ktxuke8elf0qa8rm44cr68j9r",
+        "settlement_layer": "L2"
+      },
+      "id": "inv_pAlVTqLgCj9f",
+      "number": "INV-20260512-IAXVBN",
+      "created_at": "2026-05-12T11:35:29.684Z",
+      "updated_at": "2026-05-12T11:35:29.684Z",
+      "history": [
+        {
+          "at": "2026-05-12T11:35:29.684Z",
+          "event": "invoice.created",
+          "data": {
+            "status": "pending_payment"
+          }
+        }
+      ]
+    }
+  ]
+}

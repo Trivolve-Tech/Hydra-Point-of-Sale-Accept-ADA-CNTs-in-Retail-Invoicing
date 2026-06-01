@@ -1,55 +1,19 @@
-import { type AppProps } from "next/app";
-import {
-  type DehydratedState,
-  HydrationBoundary,
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
-
-import "@meshsdk/react/styles.css";
 import "~/styles/globals.css";
-import { useEffect, useState, type ComponentType } from "react";
+import "@meshsdk/react/styles.css";
+import type { AppProps } from "next/app";
+import dynamic from "next/dynamic";
 
-type MeshProviderProps = { children: React.ReactNode };
+// MeshProvider attaches to `window.cardano` (CIP-30); must be client-only so
+// SSR doesn't blow up on `window`.
+const MeshProvider = dynamic(
+  () => import("@meshsdk/react").then((m) => m.MeshProvider),
+  { ssr: false },
+);
 
-/**
- * Do not statically import `@meshsdk/react` in `_app`: it pulls WASM/crypto into
- * the server compile and breaks `/`. Load `MeshProvider` only on the client.
- */
-function ClientMeshProvider({ children }: { children: React.ReactNode }) {
-  const [MeshP, setMeshP] = useState<ComponentType<MeshProviderProps> | null>(
-    null,
-  );
-
-  useEffect(() => {
-    let cancelled = false;
-    void import("@meshsdk/react").then((m) => {
-      if (!cancelled) setMeshP(() => m.MeshProvider);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  if (!MeshP) return <>{children}</>;
-  return <MeshP>{children}</MeshP>;
-}
-
-const MyApp = ({
-  Component,
-  pageProps,
-}: AppProps<{ dehydratedState?: DehydratedState }>) => {
-  const [queryClient] = useState(() => new QueryClient());
-
+export default function App({ Component, pageProps }: AppProps) {
   return (
-    <ClientMeshProvider>
-      <QueryClientProvider client={queryClient}>
-        <HydrationBoundary state={pageProps.dehydratedState ?? undefined}>
-          <Component {...pageProps} />
-        </HydrationBoundary>
-      </QueryClientProvider>
-    </ClientMeshProvider>
+    <MeshProvider>
+      <Component {...pageProps} />
+    </MeshProvider>
   );
-};
-
-export default MyApp;
+}

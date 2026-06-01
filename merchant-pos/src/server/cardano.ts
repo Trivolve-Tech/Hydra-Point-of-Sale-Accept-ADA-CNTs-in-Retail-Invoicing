@@ -10,9 +10,13 @@ import axios from "axios";
 import { mnemonicToEntropy } from "bip39";
 import { Buffer } from "buffer";
 
-const entropy = mnemonicToEntropy(
-  process.env.WALLET_SEED_PHRASE!
-);
+const mnemonic = process.env.WALLET_SEED_PHRASE ?? process.env.MNEMONIC;
+if (!mnemonic) {
+  throw new Error(
+    "Operator seed missing: set WALLET_SEED_PHRASE or MNEMONIC in the environment",
+  );
+}
+const entropy = mnemonicToEntropy(mnemonic);
 
 const rootKey = Bip32PrivateKey.from_bip39_entropy(
   Buffer.from(entropy, "hex"),

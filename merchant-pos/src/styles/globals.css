@@ -1,64 +1,196 @@
-@import url("font.css");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-input[type="number"] {
-  -moz-appearance: textfield; /* For Firefox */
+/* === Fonts (verbatim from trivolvetech.com) ===
+   Thunder, Neue Machina, OffBit Trial, Helvetica Neue. */
+
+@font-face { font-family: thunder-bold;       src: url("/fonts/thunder/Thunder-BoldLC_700.otf")            format("opentype"); font-weight: 700; font-display: swap; }
+@font-face { font-family: thunder-extrabold;  src: url("/fonts/thunder/Thunder-ExtraBoldLC_800.otf")       format("opentype"); font-weight: 800; font-display: swap; }
+@font-face { font-family: thunder-semibold;   src: url("/fonts/thunder/Thunder-SemiBoldLC_600.otf")        format("opentype"); font-weight: 600; font-display: swap; }
+
+@font-face { font-family: neue-regular;       src: url("/fonts/neue-machina/PPNeueMachina-PlainRegular.otf") format("opentype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: neue-light;         src: url("/fonts/neue-machina/PPNeueMachina-PlainLight.otf")   format("opentype"); font-weight: 300; font-display: swap; }
+@font-face { font-family: neue-ultra-bold;    src: url("/fonts/neue-machina/PPNeueMachina-PlainUltrabold.otf") format("opentype"); font-weight: 900; font-display: swap; }
+
+@font-face { font-family: offbit-regular;     src: url("/fonts/offbit-trial/OffBitTrial-Regular.otf")      format("opentype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: offbit-101;         src: url("/fonts/offbit-trial/OffBitTrial-101.otf")          format("opentype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: offbit-101-bold;    src: url("/fonts/offbit-trial/OffBitTrial-101Bold.otf")      format("opentype"); font-weight: 800; font-display: swap; }
+@font-face { font-family: offbit-bold;        src: url("/fonts/offbit-trial/OffBitTrial-Bold.otf")         format("opentype"); font-weight: 800; font-display: swap; }
+@font-face { font-family: offbit-dot;         src: url("/fonts/offbit-trial/OffBitTrial-Dot.otf")          format("opentype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: offbit-dot-bold;    src: url("/fonts/offbit-trial/OffBitTrial-DotBold.otf")      format("opentype"); font-weight: 800; font-display: swap; }
+
+@font-face { font-family: helvetica-light;    src: url("/fonts/helvetica/HelveticaNeue-Light.ttf")   format("truetype"); font-weight: 300; font-display: swap; }
+@font-face { font-family: helvetica-regular;  src: url("/fonts/helvetica/HelveticaNeue.ttf")         format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: helvetica-medium;   src: url("/fonts/helvetica/HelveticaNeue-Medium.ttf")  format("truetype"); font-weight: 500; font-display: swap; }
+@font-face { font-family: helvetica-bold;     src: url("/fonts/helvetica/HelveticaNeue-Bold.ttf")    format("truetype"); font-weight: 700; font-display: swap; }
+
+/* === Trivolve brand palette (from trivolvetech.com compiled CSS) === */
+:root {
+  --trivolve-blue: #0018fe;
+  --trivolve-red: #A91113;
+  --trivolve-purple: #240EAC;
+  --trivolve-black: #000;
+  --trivolve-white: #FFFFFF;
+  --trivolve-grey-1: #AFAFAF;
+  --trivolve-grey-2: #4E4E4E;
+  --trivolve-grey-3: #454545;
+  --color-secondary: #949494;
 }
 
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   overflow-x: hidden;
-  background-color: black;
+  background-color: #000;
+  color: #fff;
+  font-family: helvetica-medium, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
+input[type="number"] { -moz-appearance: textfield; }
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* === Gradient utilities (verbatim from trivolvetech.com) === */
 .home-bg {
-  background: linear-gradient(
-    180deg,
-    rgba(0, 24, 254, 0.4) -32.29%,
-    rgba(0, 0, 0, 0.4) 44.44%,
-    rgba(255, 0, 0, 0.356) 113.73%
-  );
+  background: linear-gradient(180deg,
+    rgba(0,24,254,.4) -32.29%,
+    rgba(0,0,0,.4) 44.44%,
+    rgba(255,0,0,.356) 113.73%);
 }
 
 .bg2 {
-  background: linear-gradient(
-    85.91deg,
-    rgba(0, 24, 254, 0.4) -19%,
-    rgba(0, 0, 0, 0.4) 53.51%,
-    rgba(255, 0, 0, 0.356) 118.99%
-  );
+  background: linear-gradient(85.91deg,
+    rgba(0,24,254,.4) -19%,
+    rgba(0,0,0,.4) 53.51%,
+    rgba(255,0,0,.356) 118.99%);
 }
 
 .bg-strip {
-  background: linear-gradient(
-    85.91deg,
-    rgba(0, 24, 254, 1) -19%,
-    rgba(0, 0, 0, 1) 53.51%,
-    rgba(255, 0, 0, 1) 118.99%
-  );
+  background: linear-gradient(85.91deg,
+    #0018fe -19%,
+    #000 53.51%,
+    red 118.99%);
 }
 
 .text-overlay {
-  background: linear-gradient(
-    85.91deg,
-    rgba(0, 24, 254, 1) -19%,
-    rgba(0, 0, 0, 1) 53.51%,
-    rgba(255, 0, 0, 1) 118.99%
-  );
+  background: linear-gradient(85.91deg,
+    #0018fe -19%,
+    #000 53.51%,
+    red 118.99%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+/* === Stroke text (verbatim from trivolvetech.com) === */
+.stroke-text {
+  position: relative;
+  display: inline-block;
+  color: #fff;
+  text-shadow:
+    -4px -4px 0 #000,
+     4px -4px 0 #000,
+    -4px  4px 0 #000,
+     4px  4px 0 #000;
+}
+@media (max-width: 768px) {
+  .stroke-text {
+    text-shadow:
+      -2px -2px 0 #000,
+       2px -2px 0 #000,
+      -2px  2px 0 #000,
+       2px  2px 0 #000;
+  }
+}
+
+/* === Mesh CardanoWallet overrides ===
+   Mesh's default button styling is white-on-white on a black background.
+   Force the Trivolve-white-with-tracking-widest-on-hover look on it, and
+   re-skin the wallet picker dropdown so it's readable on dark. */
+.mesh-wallet-wrap > div,
+.mesh-wallet-wrap > div > div {
+  background: transparent !important;
+}
+.mesh-wallet-wrap button {
+  background: white !important;
+  color: black !important;
+  border: 1px solid black !important;
+  border-radius: 0.5rem !important;
+  padding: 0.5rem 1rem !important;
+  font-family: helvetica-bold, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  transition: letter-spacing 0.3s, background 0.2s !important;
+  cursor: pointer !important;
+}
+.mesh-wallet-wrap button:hover {
+  letter-spacing: 0.16em !important;
+  background: #f5f5f5 !important;
+}
+.mesh-wallet-wrap button:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+.mesh-wallet-wrap [role="dialog"],
+.mesh-wallet-wrap [class*="dropdown"],
+.mesh-wallet-wrap [class*="menu"],
+.mesh-wallet-wrap [class*="Menu"] {
+  background: #0d0d0d !important;
+  color: white !important;
+  border: 1px solid #232323 !important;
+  border-radius: 0.5rem !important;
+}
+.mesh-wallet-wrap [role="dialog"] button,
+.mesh-wallet-wrap [class*="dropdown"] button,
+.mesh-wallet-wrap [class*="menu"] button,
+.mesh-wallet-wrap [class*="Menu"] button {
+  background: transparent !important;
+  color: white !important;
+  border: none !important;
+  text-align: left !important;
+  border-radius: 0.25rem !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  letter-spacing: 0.02em !important;
+}
+.mesh-wallet-wrap [role="dialog"] button:hover,
+.mesh-wallet-wrap [class*="dropdown"] button:hover,
+.mesh-wallet-wrap [class*="menu"] button:hover,
+.mesh-wallet-wrap [class*="Menu"] button:hover {
+  background: #181818 !important;
+  letter-spacing: 0.02em !important;
+}
+
+/* === Card shell (bg2 layered + dark fade + #0a0a0a inner) === */
+.card-shell {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  padding: 1px;
+}
+.card-bg2 {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(85.91deg,
+    rgba(0,24,254,.4) -19%,
+    rgba(0,0,0,.4) 53.51%,
+    rgba(255,0,0,.356) 118.99%);
+}
+.card-fade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(179.77deg,
+    rgba(0,0,0,0) 0.2%,
+    #101010 99.8%);
+}
+.card-inner {
+  position: relative;
+  z-index: 2;
+  border-radius: 0.5rem;
+  background: #0a0a0a;
 }
